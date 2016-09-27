@@ -11,6 +11,7 @@
     <script src="vendors/underscore-min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
     <script src="http://momentjs.com/downloads/moment.js"></script>
+    <script src="https://buttons.github.io/buttons.js"></script>
     <script src="gh3.js"></script>
     <script>
       angular.module('leaderboard', [])
@@ -85,6 +86,8 @@
                     <span class="octicon octicon-gist"></span> <b>Gists:</b> {{user.public_gists}} <br/>
                     <b>Followers:</b> <span class="octicon octicon-star"></span> {{user.followers}} <br/>
                     <b>Following:</b> <span class="octicon octicon-bookmark"></span> {{user.following}} <br/>
+                    <!-- Place this tag where you want the button to render. -->
+<a class="github-button" href="https://github.com/{{user.login}}" data-style="mega" data-count-href="/{{user.login}}/followers" data-count-api="/users/{{user.login}}#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @{{user.login}} on GitHub">Follow @{{user.login}}</a>
                 </div>
                 <div class="col-md-9">
                     <ul>
@@ -92,7 +95,9 @@
                             {{event.created_at | moment}}
                             <span ng-show="event.type == 'PullRequestEvent'">Pull request on <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
                             <span ng-show="event.type == 'PushEvent'">Pushed code to <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b>, <i>{{event.payload.commits[0].message}}</i></span>
-                            <span ng-show="event.type == 'IssueCommentEvent'">Commented on issue x in repo <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+                            <span ng-show="event.type == 'IssueCommentEvent'">Commented on issue in repo <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+                            <span ng-show="event.type == 'IssuesEvent'">{{event.payload.action}} issue in repo <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+
                             <span ng-show="event.type == 'CreateEvent'">Created on issue in <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
                             <span ng-show="event.type == 'ForkEvent'">Forked repository <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
                             {{event.type}}
