@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Dimension Data Research leaderboard</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.css" rel="stylesheet">
+    <script src="vendors/jquery-2.1.0.min.js"></script>
+    <script src="vendors/underscore-min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+    <script src="http://momentjs.com/downloads/moment.js"></script>
+    <script src="gh3.js"></script>
+    <script>
+      angular.module('leaderboard', [])
+          .controller('main', function($scope) {
+              var GitHubUser = Gh3.User.extend({//instance members
+                constructor : function(login) {
+                  GitHubUser.__super__.constructor.call(this, login);
+                  GitHubUser.allUsers.push(this);
+                },
+                fetchEvents : function (callback) { //see how to refactor with Gh3.Dir
+                    var that = this;
+        
+                    Gh3.Helper.callHttpApi({
+                        service : "users/"+that.login+"/events",
+                        success : function(res) {
+                            that['events'] = res.data;
+                            if (callback) callback(null, that);
+                            $scope.$apply();
+                        },
+                        error : function (res) {
+                            if (callback) callback(new Error(res.responseJSON.message),res);
+                        }
+                    });
+                }
+              },{ //Static members
+                allUsers : [],
+                each : function (callback) {
+                  _.each(GitHubUser.allUsers, function (user) {
+                    callback(user);
+                  });
+                }
+              });
+
+              var user1 = new GitHubUser("tonybaloney"),
+                  user2 = new GitHubUser("yankdownunder"),
+                  user3 = new GitHubUser("tintoy");
+              $scope.users = [];
+              GitHubUser.each(function (user) {
+                user.fetch(function (err, resUser) {
+                  if(err) {
+                    throw "outch ...";
+                  }
+                  user.fetchEvents();
+                  $scope.users.push(resUser);
+                  $scope.$apply();
+                });
+              });
+           })
+          .filter('moment', function() {
+            return function(input) {
+               return moment(input, moment.ISO_8601).fromNow();
+            };
+          });
+    </script>
+</head>
+<body ng-app="leaderboard" ng-controller='main' class="container">
+<div ng-repeat="user in users">
+    <div class="panel panel-default">
+      <div class="panel-body">
+      <div class="media"  >
+        <div class="media-left">
+          <a href="#">
+            <img class="media-object" src="{{user.avatar_url}}" alt="..." width="100px">
+          </a>
+        </div>
+        <div class="media-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <h4 class="media-heading">{{user.name}}</h4>
+                    <span class="octicon octicon-location"></span> <b>Location:</b> {{user.location}} <br/>
+                    <span class="octicon octicon-repo"></span> <b>Repositories:</b> {{user.public_repos}} <br/>
+                    <span class="octicon octicon-gist"></span> <b>Gists:</b> {{user.public_gists}} <br/>
+                    <b>Followers:</b> <span class="octicon octicon-star"></span> {{user.followers}} <br/>
+                    <b>Following:</b> <span class="octicon octicon-bookmark"></span> {{user.following}} <br/>
+                </div>
+                <div class="col-md-9">
+                    <ul>
+                        <li ng-repeat="event in user.events">
+                            {{event.created_at | moment}}
+                            <span ng-show="event.type == 'PullRequestEvent'">Pull request on <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+                            <span ng-show="event.type == 'PushEvent'">Pushed code to <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b>, <i>{{event.payload.commits[0].message}}</i></span>
+                            <span ng-show="event.type == 'IssueCommentEvent'">Commented on issue x in repo <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+                            <span ng-show="event.type == 'CreateEvent'">Created on issue in <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+                            <span ng-show="event.type == 'ForkEvent'">Forked repository <b><a href="https://github.com/{{event.repo.name}}">{{event.repo.name}}</a></b></span>
+                            {{event.type}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+         
+        </div>
+      </div>
+      </div>
+    </div>
+</div>
+
+</body>
+</html>
