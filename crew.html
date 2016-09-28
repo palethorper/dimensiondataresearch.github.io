@@ -49,7 +49,8 @@
                   user2 = new GitHubUser("yankdownunder"),
                   user3 = new GitHubUser("tintoy"),
                   user4 = new GitHubUser("samuelchong");
-              $scope.users = [];
+	          user6 =  new GitHubUser("phillogic");		              
+$scope.users = [];
               GitHubUser.each(function (user) {
                 user.fetch(function (err, resUser) {
                   if(err) {
