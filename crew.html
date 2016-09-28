@@ -23,7 +23,7 @@
                 },
                 fetchEvents : function (callback) { //see how to refactor with Gh3.Dir
                     var that = this;
-        
+
                     Gh3.Helper.callHttpApi({
                         service : "users/"+that.login+"/events",
                         success : function(res) {
@@ -47,7 +47,8 @@
 
               var user1 = new GitHubUser("tonybaloney"),
                   user2 = new GitHubUser("yankdownunder"),
-                  user3 = new GitHubUser("tintoy");
+                  user3 = new GitHubUser("tintoy"),
+                  user4 = new GitHubUser("samuelchong");
               $scope.users = [];
               GitHubUser.each(function (user) {
                 user.fetch(function (err, resUser) {
@@ -105,7 +106,7 @@
                     </ul>
                 </div>
             </div>
-         
+
         </div>
       </div>
       </div>
